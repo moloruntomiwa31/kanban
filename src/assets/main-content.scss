@@ -1,0 +1,38 @@
+.main-content {
+  position: relative;
+  background-color: #eee;
+  min-height: 100vh;
+  top: 0;
+  left: 50px;
+  transition: all 0.5s ease;
+  width: calc(100% - 50px);
+  background-color: #f4f7fd;
+
+  .header {
+    position: sticky;
+    top: 0;
+    height: 100px;
+    width: 100%;
+    background-color: #fff;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+
+    .add-task-btn {
+      background-color: #635fc7;
+      color: white;
+      border-radius: 1.5rem;
+      padding: 0.5rem;
+    }
+    .add-task-btn:disabled {
+      background-color: #b3b2e6;
+      cursor: not-allowed;
+    }
+  }
+  .container {
+    position: absolute;
+    color: #20212c;
+    min-height: calc(100vh - 116px);
+  }
+}
