@@ -28,82 +28,33 @@
       </div>
     </div>
     <!-- To edit and Delete with each modals -->
-    <div
-      class="shadow w-[200px] p-8 rounded-lg space-y-4 fixed top-[6rem] right-[2rem] md:right-[7rem] bg-red-100 lg:right-[12rem] z-10 slide-in"
-      :class="{ 'slide-out': !showDetails }"
-      v-show="showDetails"
-    >
-      <button @click="editBoard = true">Edit Board</button>
-      <button @click="deleteBoard = true" class="text-red-400">
-        Delete Board
-      </button>
-    </div>
+    <BoardEditor
+      :showDetails="showDetails"
+      @editBoard="editBoard = true"
+      @deleteBoard="deleteBoard = true"
+    />
     <!-- Edit Modal -->
-    <Modal @closeModal="editBoard = false" v-if="editBoard">
-      <template #header>
-        <h2 class="capitalize font-bold text-xl">Edit Board</h2>
-      </template>
-      <template #body>
-        <label for="board-name">Title</label>
-        <InputComponent
-          :initialValue="boardTitle"
-          class="outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
-          placeholder="e.g Design Patterns"
-          @updateInput="updateTitle($event)"
-        />
-        <label for="board-column">Columns</label>
-        <NewColumn
-          v-for="(value, index) in currentBoardColumns"
-          :key="index"
-          :initialValue="value.name"
-          @removeInput="removeColumn(index)"
-          @updateInputValue="updateInputValue(index, $event)"
-        />
-        <button
-          class="bg-[#eee] text-[#635fc7] p-2 rounded-2xl"
-          @click="addNewColumn"
-        >
-          <i class="bx bx-plus text-md"></i>Add New Column
-        </button>
-        <button
-          @click="saveChanges"
-          class="bg-[#635fc7] text-white p-2 rounded-2xl"
-        >
-          Save Changes
-        </button>
-      </template>
-    </Modal>
+    <EditBoardModal
+      :editBoard="editBoard"
+      :currentBoardColumns="currentBoardColumns"
+      :boardTitle="boardTitle"
+      @closeModal="editBoard = false"
+      @updateTitle="updateTitle"
+      @removeColumn="removeColumn"
+      @updateInputValue="updateInputValue"
+      @addNewColumn="addNewColumn"
+      @saveChanges="saveChanges"
+    />
     <!-- end -->
 
     <!-- Delete Modal -->
-    <Modal @closeModal="deleteBoard = false" v-if="deleteBoard">
-      <template #header>
-        <h2 class="capitalize font-bold text-xl text-red-500">
-          Delete this board?
-        </h2>
-      </template>
-      <template #body>
-        <p>
-          Are you sure you want to delete the
-          <span class="font-bold">{{ boardTitle }}</span> board? This action
-          will remove all columns and tasks and cannot be reversed.
-        </p>
-        <div class="flex justify-around items-center">
-          <button
-            class="bg-red-400 text-white p-4 rounded-3xl"
-            @click="removeBoard(boardTitle)"
-          >
-            Delete
-          </button>
-          <button
-            class="bg-gray-200 text-[#635fc7] p-4 rounded-3xl"
-            @click="deleteBoard = false"
-          >
-            Cancel
-          </button>
-        </div>
-      </template>
-    </Modal>
+    <DeleteModal
+      :boardTitle="boardTitle"
+      :deleteBoard="deleteBoard"
+      @closeModal="deleteBoard = false"
+      @cancel="deleteBoard = false"
+      @removeBoard="removeBoard(boardTitle)"
+    />
     <!-- end -->
 
     <!-- Task Modal -->
@@ -129,13 +80,14 @@
 
         <label for="subTask">SubTasks</label>
         <NewColumn
-          v-for="(i, index) in columnStore.numOfSubTasks"
+          v-for="(i, index) in numOfSubtasks"
           :key="i"
           @removeInput="removeSubtask(index)"
+          @updateInputValue="updateSubtaskValue(index, $event)"
         />
         <button
           class="bg-[#eee] text-[#635fc7] p-2 rounded-2xl"
-          @click="columnStore.incrementSubTask"
+          @click="numOfSubtasks++"
         >
           <i class="bx bx-plus text-md"></i>Add New Subtask
         </button>
@@ -145,12 +97,19 @@
           v-model="status"
           class="outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
         >
-          <option :value="data.name" v-for="data in currentBoardColumns">
+          <option
+            :value="data.name"
+            v-for="data in currentBoardColumns"
+            class="capitalize"
+          >
             {{ data.name }}
           </option>
         </select>
 
-        <button class="bg-[#635fc7] text-white p-2 rounded-2xl">
+        <button
+          class="bg-[#635fc7] text-white p-2 rounded-2xl"
+          @click="createTask(taskTitle, taskDescription, status, subTasksData)"
+        >
           Create Task
         </button>
       </template>
@@ -180,20 +139,10 @@
       v-if="board.newBoards"
     >
       <div class="min-h-[100vh] flex-col text-center">
-        <div class="flex gap-8 overflow-x-scroll min-w-full min-h-[100vh]">
-          <div
-            class="min-w-[280px] font-bold min-h-full"
-            v-for="data in currentBoardColumns"
-          >
-            {{ data.name }}({{ data.tasks.length }})
-          </div>
-          <div
-            @click="editBoard = true"
-            class="min-w-[280px] bg-purple-100 font-extrabold text-lg lg:text-2xl max-h-full empty-text hover:cursor-pointer"
-          >
-            <i class="bx bx-plus text-xl font-extrabold"></i>New Column
-          </div>
-        </div>
+        <ColumnView
+          :currentBoardColumns="currentBoardColumns"
+          @editBoard="editBoard = true"
+        />
       </div>
 
       <!-- if board has not been created -->
@@ -206,24 +155,24 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
-import {
-  onBeforeMount,
-  ref,
-  watch,
-  computed,
-  onMounted,
-  watchEffect,
-} from "vue";
+import { v4 as uuidv4 } from "uuid";
+import { ref, watch, computed, onMounted, watchEffect } from "vue";
 import { useCreateBoard } from "@/stores/board";
 import { useColumn } from "@/stores/column";
 import Modal from "../components/dashboard/Modal.vue";
 import NewBoardModal from "@/components/dashboard/NewBoardModal.vue";
 import NewColumn from "@/components/dashboard/NewColumn.vue";
 import InputComponent from "@/components/dashboard/InputComponent.vue";
-import type Column from "../types/Column"
+import type Column from "../types/Column";
+import type Board from "../types/Board";
+import BoardEditor from "../components/board/BoardEditor.vue";
+import EditBoardModal from "../components/board/EditBoardModal.vue";
+import DeleteModal from "../components/board/DeleteModal.vue";
+import ColumnView from "../components/board/ColumnView.vue";
 import { useToast } from "@/stores/toast";
 
-const boardTitle = ref("");
+//reactive values
+const boardTitle = ref<string>("");
 const route = useRoute();
 const router = useRouter();
 const board = useCreateBoard();
@@ -233,8 +182,7 @@ const showDetails = ref<boolean>(false);
 const editBoard = ref<boolean>(false);
 const taskModal = ref<boolean>(false);
 const deleteBoard = ref<boolean>(false);
-const matchingBoard = board.newBoards.find((b) => b.id === route.params.id);
-// const { columns } = toRefs(matchingBoard);
+const matchingBoard = ref<Board | null>(null);
 
 // task reactive values
 const status = ref("");
@@ -251,59 +199,115 @@ const removeBoard = (title: string) => {
   router.push("/dashboard");
 };
 
+// compted properties
 const isButtonDisabled = computed(() => {
   return !(board.newBoards.length >= 1);
 });
-
-const currentBoardColumns = computed<Column[]>(() => {
-  if (matchingBoard) {
-    return matchingBoard.columns;
+//computed property for gettinf current board
+const currentBoardColumns = computed<Column[] | []>(() => {
+  if (matchingBoard.value) {
+    return matchingBoard.value.columns;
   }
   return [];
 });
-// const updatedColumns = ref([...columns.value]);
+// Updating and modifying board and columns
 const updateInputValue = (index: number, newValue: string) => {
-  matchingBoard!.columns[index].name = newValue;
+  if (matchingBoard.value) {
+    const updatedColumns = [...matchingBoard!.value.columns];
+    updatedColumns[index].name = newValue;
+    matchingBoard!.value.columns = updatedColumns;
+  }
 };
 const removeColumn = (index: number) => {
-  matchingBoard!.numberOfColumns--;
-  matchingBoard!.columns.splice(index, 1);
-  console.log("delete");
+  if (matchingBoard.value) {
+    matchingBoard!.value.numberOfColumns--;
+    matchingBoard!.value.columns.splice(index, 1);
+    console.log("delete");
+  }
 };
 const addNewColumn = () => {
-  matchingBoard!.columns.push({ name: "", tasks: [] });
-  matchingBoard!.numberOfColumns++;
+  if (matchingBoard.value) {
+    matchingBoard!.value.columns.push({ name: "", tasks: [] });
+    matchingBoard!.value.numberOfColumns++;
+  }
 };
 const updateTitle = (value: string) => {
-  boardTitle.value = value;
-  matchingBoard!.name = boardTitle.value;
+  if (matchingBoard.value) {
+    boardTitle.value = value;
+    matchingBoard!.value.name = boardTitle.value;
+  }
 };
 const saveChanges = () => {
-  toast.addToast("Changes Saved Successfully!", "success");
-  editBoard.value = false;
+  if (matchingBoard.value) {
+    matchingBoard!.value.columns = currentBoardColumns.value;
+    toast.addToast("Changes Saved Successfully!", "success");
+    editBoard.value = false;
+  }
 };
 
-const removeSubtask = (index: number) => {
-  columnStore.decrementSubTask();
-};
+//Watch for board
 
-onBeforeMount(() => {
+watchEffect(() => {
   const foundBoard = board.newBoards.find((b) => b.id == route.params.id);
   if (foundBoard) {
     boardTitle.value = foundBoard.name;
   }
 });
+onMounted(() => {
+  const foundBoard = board.newBoards.find((b) => b.id == route.params.id);
+  matchingBoard.value = foundBoard!;
+});
 
 // Watch for changes in route.params.id and update boardTitle accordingly
 watch(
   () => route.params.id,
-  () => {
-    const foundBoard = board.newBoards.find((b) => b.id == route.params.id);
+  (newId) => {
+    const foundBoard = board.newBoards.find((b) => b.id == newId);
     if (foundBoard) {
       boardTitle.value = foundBoard.name;
+      matchingBoard.value = foundBoard;
     }
   }
 );
+
+// Creating Tasks
+
+const numOfSubtasks = ref(1);
+const subTasksData = ref<string[]>([]);
+
+const removeSubtask = (index: number) => {
+  numOfSubtasks.value--;
+  subTasksData.value.splice(index, 1);
+};
+
+const updateSubtaskValue = (index: number, value: string) => {
+  subTasksData.value[index] = value;
+};
+
+const createTask = (
+  title: string,
+  description: string,
+  status: string,
+  data: string[]
+) => {
+  const exactColumn = matchingBoard.value!.columns.find(
+    (b) => b.name == status
+  );
+  exactColumn?.tasks.push({
+    id: uuidv4(),
+    name: title,
+    description: description,
+    numOfSubtasks: numOfSubtasks.value,
+    subtasks: data.map((d) => ({
+      id: uuidv4(),
+      name: d,
+    })),
+  });
+  numOfSubtasks.value = 1;
+  subTasksData.value = [];
+  toast.addToast("Task successfully created", "success")
+  taskModal.value = false
+};
 </script>
 
 <style scoped lang="scss">

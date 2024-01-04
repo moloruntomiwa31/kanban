@@ -43,20 +43,16 @@ import Modal from "../../components/dashboard/Modal.vue";
 import { useUser } from "../../stores/user";
 import { storeToRefs } from "pinia";
 import { useCreateBoard } from "../../stores/board";
-import { useColumn } from "@/stores/column";
 import NewColumn from "./NewColumn.vue";
 
 const currentUser = useUser();
 const boardStore = useCreateBoard();
-const columnStore = useColumn();
-const { newBoardName } = storeToRefs(boardStore);
-const { columnValues } = storeToRefs(columnStore);
+const { newBoardName, columnValues } = storeToRefs(boardStore);
 const { addBoard } = boardStore;
-// const { incrementColumn, decrementColumn } = columnStore;
 
 const addNewColumn = () => {
   boardStore.numOfColumns++
-  columnValues.value.push("");
+  // columnValues.value.push("");
 };
 const removeColumn = (index: number) => {
   boardStore.numOfColumns--

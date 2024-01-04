@@ -63,7 +63,7 @@ const boardStore = useCreateBoard();
             class="bg-white py-5 px-4 w-full md:w-[250px] text-left cursor-pointer z-20"
             @click="router.push(`/dashboard/board/${board.id}`)"
           >
-            <h3 class="font-bold">{{ board.name }}</h3>
+            <h3 class="font-bold capitalize">{{ board.name }}</h3>
             <p class="flex items-center font-bold text-[0.8rem] text-gray-400">
               View Board<i
                 class="bx bxs-right-arrow-circle text-lg text-emerald-400"

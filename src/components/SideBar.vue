@@ -22,7 +22,7 @@
           active-class="active-board"
         >
           <i class="bx bx-grid-alt"></i>
-          <span class="nav-item">{{ board.name }}</span>
+          <span class="nav-item capitalize">{{ board.name }}</span>
         </RouterLink>
         <span class="tooltip">{{ board.name }}</span>
       </li>
@@ -80,8 +80,8 @@ const openSideBar = () => {
   width: 50px;
   background-color: #20212c;
   padding: 0.4rem 0.8rem;
-  transition: all 0.5s ease;
-  z-index: 100;
+  transition: all 0.5s ease; 
+    z-index: 100;
 
   #btn {
     position: absolute;

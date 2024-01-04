@@ -1,7 +1,7 @@
 <template>
   <Transition name="modal-fade">
     <Teleport to="body">
-      <section class="new-board-modal" @click="$emit('closeModal')">
+      <section class="new-board-modal" @click="handleCloseModal">
         <Transition name="slide-in">
           <div class="modal" @click.stop>
             <div class="header">
@@ -17,7 +17,12 @@
   </Transition>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const emit = defineEmits(["closeModal"]);
+const handleCloseModal = () => {
+  emit("closeModal");
+};
+</script>
 
 <style scoped lang="scss">
 @import "../../assets/main.scss";
