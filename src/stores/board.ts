@@ -1,11 +1,10 @@
-import { defineStore } from "pinia";
+import { defineStore, acceptHMRUpdate } from "pinia";
 import { ref, reactive } from "vue";
 import { useUser } from "./user";
 import { v4 as uuidv4 } from "uuid";
 import type Board from "../types/Board";
 import type Task from "../types/Task";
-import { useColumn } from "./column";
-// import type { Column } from "../types/Column";
+import type Column from "../types/Column";
 import { useToast } from "./toast";
 import { useRouter } from "vue-router";
 
@@ -14,6 +13,8 @@ export const useCreateBoard = defineStore("useCreateBoard", () => {
   const newBoardName = ref("");
   const numOfColumns = ref(1);
   const columnValues = ref<string[]>([]);
+  const numOfSubtasks = ref(1);
+  const subTasksData = ref<string[]>([]);
   const newBoards: Array<Board> = reactive([]);
   const toast = useToast();
   const router = useRouter();
@@ -35,5 +36,37 @@ export const useCreateBoard = defineStore("useCreateBoard", () => {
     currentUser.createNewBoard = false;
     toast.addToast("You've successfully created a board!", "success");
   };
-  return { newBoardName, newBoards, addBoard, numOfColumns, columnValues };
+
+  const createTask = (
+    title: string,
+    description: string,
+    status: string,
+    data: string[],
+    exactColumn: Column
+  ) => {
+    exactColumn?.tasks.push({
+      id: uuidv4(),
+      name: title,
+      description: description,
+      numOfSubtasks: numOfSubtasks.value,
+      subtasks: data.map((d) => ({
+        id: uuidv4(),
+        name: d,
+        isChecked: false,
+      })),
+    });
+    numOfSubtasks.value = 1;
+    subTasksData.value = [];
+    toast.addToast("Task successfully created", "success");
+  };
+  return {
+    newBoardName,
+    newBoards,
+    addBoard,
+    numOfColumns,
+    columnValues,
+    createTask,
+    numOfSubtasks,
+    subTasksData,
+  };
 });

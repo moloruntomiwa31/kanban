@@ -28,10 +28,12 @@
       </div>
     </div>
     <!-- To edit and Delete with each modals -->
-    <BoardEditor
+    <EditorTab
       :showDetails="showDetails"
-      @editBoard="editBoard = true"
-      @deleteBoard="deleteBoard = true"
+      :firstValue="'Edit Board'"
+      :secondValue="'Delete Board'"
+      @edit="editBoard = true"
+      @delete="deleteBoard = true"
     />
     <!-- Edit Modal -->
     <EditBoardModal
@@ -80,14 +82,14 @@
 
         <label for="subTask">SubTasks</label>
         <NewColumn
-          v-for="(i, index) in numOfSubtasks"
+          v-for="(i, index) in board.numOfSubtasks"
           :key="i"
           @removeInput="removeSubtask(index)"
           @updateInputValue="updateSubtaskValue(index, $event)"
         />
         <button
           class="bg-[#eee] text-[#635fc7] p-2 rounded-2xl"
-          @click="numOfSubtasks++"
+          @click="board.numOfSubtasks++"
         >
           <i class="bx bx-plus text-md"></i>Add New Subtask
         </button>
@@ -108,7 +110,7 @@
 
         <button
           class="bg-[#635fc7] text-white p-2 rounded-2xl"
-          @click="createTask(taskTitle, taskDescription, status, subTasksData)"
+          @click="createTask(taskTitle, taskDescription, status, board.subTasksData)"
         >
           Create Task
         </button>
@@ -147,9 +149,6 @@
 
       <!-- if board has not been created -->
     </div>
-
-    <!-- New Board Modal -->
-    <NewBoardModal />
   </div>
 </template>
 
@@ -158,14 +157,13 @@ import { useRoute, useRouter } from "vue-router";
 import { v4 as uuidv4 } from "uuid";
 import { ref, watch, computed, onMounted, watchEffect } from "vue";
 import { useCreateBoard } from "@/stores/board";
-import { useColumn } from "@/stores/column";
 import Modal from "../components/dashboard/Modal.vue";
 import NewBoardModal from "@/components/dashboard/NewBoardModal.vue";
 import NewColumn from "@/components/dashboard/NewColumn.vue";
 import InputComponent from "@/components/dashboard/InputComponent.vue";
 import type Column from "../types/Column";
 import type Board from "../types/Board";
-import BoardEditor from "../components/board/BoardEditor.vue";
+import EditorTab from "../components/board/EditorTab.vue";
 import EditBoardModal from "../components/board/EditBoardModal.vue";
 import DeleteModal from "../components/board/DeleteModal.vue";
 import ColumnView from "../components/board/ColumnView.vue";
@@ -176,7 +174,6 @@ const boardTitle = ref<string>("");
 const route = useRoute();
 const router = useRouter();
 const board = useCreateBoard();
-const columnStore = useColumn();
 const toast = useToast();
 const showDetails = ref<boolean>(false);
 const editBoard = ref<boolean>(false);
@@ -272,42 +269,23 @@ watch(
 
 // Creating Tasks
 
-const numOfSubtasks = ref(1);
-const subTasksData = ref<string[]>([]);
 
 const removeSubtask = (index: number) => {
-  numOfSubtasks.value--;
-  subTasksData.value.splice(index, 1);
+  board.numOfSubtasks--;
+  board.subTasksData.splice(index, 1);
 };
 
 const updateSubtaskValue = (index: number, value: string) => {
-  subTasksData.value[index] = value;
+  board.subTasksData[index] = value;
 };
 
-const createTask = (
-  title: string,
-  description: string,
-  status: string,
-  data: string[]
-) => {
+const createTask = (title: string, description: string, status: string, data:string[]) => {
   const exactColumn = matchingBoard.value!.columns.find(
-    (b) => b.name == status
-  );
-  exactColumn?.tasks.push({
-    id: uuidv4(),
-    name: title,
-    description: description,
-    numOfSubtasks: numOfSubtasks.value,
-    subtasks: data.map((d) => ({
-      id: uuidv4(),
-      name: d,
-    })),
-  });
-  numOfSubtasks.value = 1;
-  subTasksData.value = [];
-  toast.addToast("Task successfully created", "success")
-  taskModal.value = false
-};
+      (b) => b.name == status
+    );
+  board.createTask(title, description, status, data, exactColumn!)
+  taskModal.value = false;
+}
 </script>
 
 <style scoped lang="scss">

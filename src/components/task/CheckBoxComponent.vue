@@ -5,7 +5,7 @@
       :id="subtask.name"
       :value="subtask.name"
       class="h-5 w-5 focus:border-indigo-300 focus:ring-purple-500 mr-2 hover:cursor-pointer"
-      v-model="isChecked"
+      v-model="subtask.isChecked"
       @change="handleCheckBox"
     />
     <label :for="subtask.name" class="capitalize text-md font-bold">{{
@@ -19,14 +19,14 @@ import { ref } from "vue";
 import type SubTask from "../../types/SubTask";
 import InputComponent from "../dashboard/InputComponent.vue";
 
-const isChecked = ref(false);
+// const isChecked = ref(false);
 const emit = defineEmits(["updateCheckBox"]);
 const props = defineProps<{
   subtask: SubTask;
 }>();
 const handleCheckBox = () => {
-  emit("updateCheckBox", props.subtask.name, isChecked);
-  isChecked.value = false;
+  emit("updateCheckBox", props.subtask.name, props.subtask.isChecked);
+  // isChecked.value = false;
 };
 </script>
 
