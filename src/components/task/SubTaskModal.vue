@@ -34,10 +34,13 @@
       />
       <p class="block">
         <label>Current Status</label>
-        <select
+        <select v-model="newStatus"
           class="block w-full outline-[#a8a4ff] border-1 border-[#828FA3] p-3 rounded-lg hover:cursor-pointer"
         >
-          <option v-for="data in currentBoardColumns">{{ data.name }}</option>
+          <option :value="boardColumnStatus" class="capitalize" selected>
+            {{ boardColumnStatus }}
+          </option>
+          <option v-for="data in updatedOption">{{ data.name }}</option>
         </select>
       </p>
     </template>
@@ -45,16 +48,25 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue";
 import Modal from "../dashboard/Modal.vue";
 import CheckBoxComponent from "./CheckBoxComponent.vue";
+import type Column from "@/types/Column";
 
-defineProps([
+const props = defineProps([
   "currentColumnTask",
   "currentBoardColumns",
   "subTaskModal",
   "checkedSubTasks",
+  "boardColumnStatus",
 ]);
 const emit = defineEmits(["close", "handleTask", "handleInputUpdate"]);
+const newStatus = ref(props.boardColumnStatus)
+const updatedOption = computed<Column[]>(() => {
+  return props.currentBoardColumns.filter(
+    (column: Column) => column.name != props.boardColumnStatus
+  );
+});
 
 const handleClose = () => {
   emit("close");
@@ -62,7 +74,7 @@ const handleClose = () => {
 const handleTaskDetails = () => {
   emit("handleTask");
 };
-const handleInputUpdate = (name:string, value:boolean) => {
+const handleInputUpdate = (name: string, value: boolean) => {
   emit("handleInputUpdate", name, value);
 };
 </script>

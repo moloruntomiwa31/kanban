@@ -6,7 +6,6 @@ import type Board from "../types/Board";
 import type Task from "../types/Task";
 import type Column from "../types/Column";
 import { useToast } from "./toast";
-import { useRouter } from "vue-router";
 
 export const useCreateBoard = defineStore("useCreateBoard", () => {
   const currentUser = useUser();
@@ -17,7 +16,6 @@ export const useCreateBoard = defineStore("useCreateBoard", () => {
   const subTasksData = ref<string[]>([]);
   const newBoards: Array<Board> = reactive([]);
   const toast = useToast();
-  const router = useRouter();
 
   const addBoard = (boardName: string, boardColumn: string[]) => {
     const board: Board = {
@@ -44,22 +42,35 @@ export const useCreateBoard = defineStore("useCreateBoard", () => {
     data: string[],
     exactColumn: Column
   ) => {
-    exactColumn?.tasks.push({
+    const task: Task = {
       id: uuidv4(),
       name: title,
       description: description,
+      status: status,
       numOfSubtasks: numOfSubtasks.value,
       subtasks: data.map((d) => ({
         id: uuidv4(),
         name: d,
         isChecked: false,
       })),
-    });
+    }
+    exactColumn?.tasks.push(task);
     numOfSubtasks.value = 1;
     subTasksData.value = [];
     toast.addToast("Task successfully created", "success");
   };
+
+  // Modifying SubTask
+  const removeSubtask =(index: number) => {
+    numOfSubtasks.value--;
+    subTasksData.value.splice(index, 1);
+  }
+  const updateSubtaskValue = (index: number, value: string) => {
+    subTasksData.value[index] = value;
+  }
   return {
+    removeSubtask,
+    updateSubtaskValue,
     newBoardName,
     newBoards,
     addBoard,
@@ -70,3 +81,7 @@ export const useCreateBoard = defineStore("useCreateBoard", () => {
     subTasksData,
   };
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useCreateBoard, import.meta.hot));
+}

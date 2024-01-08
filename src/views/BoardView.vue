@@ -71,21 +71,13 @@
           class="outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
           v-model="taskTitle"
         />
-
-        <label for="description">Description</label>
-        <textarea
-          cols="30"
-          rows="5"
-          class="outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
-          v-model="taskDescription"
-        ></textarea>
-
+        <TextAreaComponent label="description" v-model="taskDescription" />
         <label for="subTask">SubTasks</label>
         <NewColumn
           v-for="(i, index) in board.numOfSubtasks"
           :key="i"
-          @removeInput="removeSubtask(index)"
-          @updateInputValue="updateSubtaskValue(index, $event)"
+          @removeInput="board.removeSubtask(index)"
+          @updateInputValue="board.updateSubtaskValue(index, $event)"
         />
         <button
           class="bg-[#eee] text-[#635fc7] p-2 rounded-2xl"
@@ -110,7 +102,9 @@
 
         <button
           class="bg-[#635fc7] text-white p-2 rounded-2xl"
-          @click="createTask(taskTitle, taskDescription, status, board.subTasksData)"
+          @click="
+            createTask(taskTitle, taskDescription, status, board.subTasksData)
+          "
         >
           Create Task
         </button>
@@ -143,6 +137,10 @@
       <div class="min-h-[100vh] flex-col text-center">
         <ColumnView
           :currentBoardColumns="currentBoardColumns"
+          :columnTask="currentColumnTask"
+          :boardColumnStatus="status"
+          :taskTitle="taskTitle"
+          :taskDescription="taskDescription"
           @editBoard="editBoard = true"
         />
       </div>
@@ -154,19 +152,19 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
-import { v4 as uuidv4 } from "uuid";
 import { ref, watch, computed, onMounted, watchEffect } from "vue";
 import { useCreateBoard } from "@/stores/board";
 import Modal from "../components/dashboard/Modal.vue";
-import NewBoardModal from "@/components/dashboard/NewBoardModal.vue";
 import NewColumn from "@/components/dashboard/NewColumn.vue";
 import InputComponent from "@/components/dashboard/InputComponent.vue";
 import type Column from "../types/Column";
 import type Board from "../types/Board";
+import type Task from "../types/Task";
 import EditorTab from "../components/board/EditorTab.vue";
 import EditBoardModal from "../components/board/EditBoardModal.vue";
 import DeleteModal from "../components/board/DeleteModal.vue";
 import ColumnView from "../components/board/ColumnView.vue";
+import TextAreaComponent from "@/components/dashboard/TextAreaComponent.vue";
 import { useToast } from "@/stores/toast";
 
 //reactive values
@@ -200,13 +198,19 @@ const removeBoard = (title: string) => {
 const isButtonDisabled = computed(() => {
   return !(board.newBoards.length >= 1);
 });
-//computed property for gettinf current board
+//computed property for getting current board
 const currentBoardColumns = computed<Column[] | []>(() => {
   if (matchingBoard.value) {
     return matchingBoard.value.columns;
   }
   return [];
 });
+const currentColumnTask = computed<Task[]>(() => {
+  if (matchingBoard.value) {
+    return matchingBoard.value.columns.tasks;
+  }
+});
+
 // Updating and modifying board and columns
 const updateInputValue = (index: number, newValue: string) => {
   if (matchingBoard.value) {
@@ -219,7 +223,6 @@ const removeColumn = (index: number) => {
   if (matchingBoard.value) {
     matchingBoard!.value.numberOfColumns--;
     matchingBoard!.value.columns.splice(index, 1);
-    console.log("delete");
   }
 };
 const addNewColumn = () => {
@@ -243,7 +246,6 @@ const saveChanges = () => {
 };
 
 //Watch for board
-
 watchEffect(() => {
   const foundBoard = board.newBoards.find((b) => b.id == route.params.id);
   if (foundBoard) {
@@ -269,23 +271,18 @@ watch(
 
 // Creating Tasks
 
-
-const removeSubtask = (index: number) => {
-  board.numOfSubtasks--;
-  board.subTasksData.splice(index, 1);
-};
-
-const updateSubtaskValue = (index: number, value: string) => {
-  board.subTasksData[index] = value;
-};
-
-const createTask = (title: string, description: string, status: string, data:string[]) => {
+const createTask = (
+  title: string,
+  description: string,
+  status: string,
+  data: string[]
+) => {
   const exactColumn = matchingBoard.value!.columns.find(
-      (b) => b.name == status
-    );
-  board.createTask(title, description, status, data, exactColumn!)
+    (b) => b.name == status
+  );
+  board.createTask(title, description, status, data, exactColumn!);
   taskModal.value = false;
-}
+};
 </script>
 
 <style scoped lang="scss">

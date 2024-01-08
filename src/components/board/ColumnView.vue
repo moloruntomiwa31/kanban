@@ -37,6 +37,7 @@
     :currentBoardColumns="currentBoardColumns"
     :subTaskModal="subTaskModal"
     :checkedSubTasks="checkedSubTasks"
+    :boardColumnStatus="boardColumnStatus"
     @handleTask="showTaskDetails = !showTaskDetails"
     @handleInputUpdate="handleInputUpdate"
   />
@@ -47,14 +48,100 @@
     :firstValue="'Edit Task'"
     :secondValue="'Delete Task'"
   />
+  <Modal v-if="editTask" @closeModal="editTask = false">
+    <template #header>
+      <label for="taskName">Task Name</label>
+      <InputComponent
+        :initialValue="taskTitle"
+        placeholder="e.g Take Coffee Break"
+        class="block mt-3 outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
+        v-model="newTaskTitle"
+      />
+    </template>
+    <template #body>
+      <TextAreaComponent label="description" v-model="newTaskDescription" />
+      <label for="">SubTasks</label>
+      <NewColumn
+        v-for="(s, index) in currentColumnTask.subtasks"
+        :key="index"
+        :initialValue="s.name"
+        @removeInput="removeSubtask(index)"
+        @updateInputValue="updateSubtaskValue(index, $event)"
+      />
+      <button
+        class="bg-[#eee] text-[#635fc7] p-2 rounded-2xl"
+        @click="addInputToEditSubtask"
+      >
+        <i class="bx bx-plus text-md"></i>Add New Subtask
+      </button>
+      <label for="status">Current Status</label>
+      <select
+        v-model="newStatus"
+        class="outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
+      >
+        <option :value="boardColumnStatus" class="capitalize" selected>
+          {{ boardColumnStatus }}
+        </option>
+        <option
+          :value="data.name"
+          v-for="data in updatedOption"
+          class="capitalize"
+        >
+          {{ data.name }}
+        </option>
+      </select>
+
+      <button
+        class="bg-[#635fc7] text-white p-2 rounded-2xl"
+        @click="board.createTask(newTaskTitle, newTaskDescription, newStatus)"
+      >
+        Create Task
+      </button>
+    </template>
+  </Modal>
+  <Modal v-if="deleteTask" @closeModal="deleteTask = false">
+    <template #header>
+      <h2 class="font-bold text-xl text-red-500">Delete this task?</h2>
+    </template>
+    <template #body>
+      <h3 class="text-gray-500">
+        Are you sure you want to delete the
+        <span class="font-bold">"{{ currentColumnTask.name }}"</span>
+        task and its subtasks? This action cannot be reversed.
+      </h3>
+      <div class="w-full flex items-center justify-between space-x-4">
+        <button
+          @click="removeTask(currentColumnTask)"
+          class="p-3 rounded-full font-bold text-center bg-red-500 w-1/2 text-white hover:opacity-75 duration-150"
+        >
+          Delete
+        </button>
+        <button
+          @click="deleteTask = false"
+          class="p-3 rounded-full font-bold text-center bg-gray-200 w-1/2 text-purple-500 hover:opacity-75 duration-150"
+        >
+          Cancel
+        </button>
+      </div>
+    </template>
+  </Modal>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { v4 as uuidv4 } from "uuid";
+import { ref, computed } from "vue";
+import Modal from "../dashboard/Modal.vue";
 import type Column from "../../types/Column.ts";
 import type Task from "../../types/Task.ts";
 import SubTaskModal from "../task/SubTaskModal.vue";
+import NewColumn from "../dashboard/NewColumn.vue";
 import EditorTab from "./EditorTab.vue";
+import { useCreateBoard } from "@/stores/board";
+import { useToast } from "@/stores/toast";
+import InputComponent from "../dashboard/InputComponent.vue";
+import TextAreaComponent from "../dashboard/TextAreaComponent.vue";
+const board = useCreateBoard();
+const toast = useToast();
 
 const subTaskModal = ref<boolean>(false);
 const currentColumnTask = ref<Task[]>([]);
@@ -65,7 +152,15 @@ const deleteTask = ref<boolean>(false);
 
 const props = defineProps<{
   currentBoardColumns: Column[];
+  columnTask: Task[];
+  boardColumnStatus: string;
+  taskTitle: string;
+  taskDescription: string;
 }>();
+const newStatus = ref(props.boardColumnStatus);
+const newTaskDescription = ref(props.taskDescription);
+const newTaskTitle = ref(props.taskTitle);
+
 const emit = defineEmits(["editBoard"]);
 const handleEditColumn = () => {
   emit("editBoard");
@@ -92,6 +187,45 @@ const handleInputUpdate = (updatedValue: string, isChecked: boolean) => {
     );
   }
 };
+
+const updatedOption = computed<Column[]>(() => {
+  return props.currentBoardColumns.filter(
+    (column: Column) => column.name != props.boardColumnStatus
+  );
+});
+
+const addInputToEditSubtask = () => {
+  if (props.columnTask) {
+    currentColumnTask.subtasks.push({
+      id: uuidv4(),
+      name: "",
+      isChecked: false,
+    });
+    currentColumnTask.numOfSubtasks++;
+  }
+};
+
+const removeSubtask = (index: number) => {
+  currentColumnTask.subtasks.splice(index, 1);
+};
+const updateSubtaskValue = (index: number, value: string) => {
+  currentColumnTask.subtasks[index].name = value;
+};
+
+const removeTask = (task: Task) => {
+  for (const column of props.currentBoardColumns) {
+    const taskIndexToRemove = column.tasks.findIndex(
+      (t) => t.name === task.name
+    );
+    if (taskIndexToRemove !== -1) {
+      column.tasks.splice(taskIndexToRemove, 1);
+      toast.addToast("Task successfully deleted!", "success");
+      deleteTask.value = false;
+      showTaskDetails.value = false;
+      break;
+    }
+  }
+};
 </script>
 
 <style scoped lang="scss">
@@ -103,5 +237,8 @@ const handleInputUpdate = (updatedValue: string, isChecked: boolean) => {
   h2 {
     color: #b365b3;
   }
+}
+label {
+  font-weight: 700;
 }
 </style>
