@@ -15,18 +15,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import type SubTask from "../../types/SubTask";
 import InputComponent from "../dashboard/InputComponent.vue";
 
-// const isChecked = ref(false);
 const emit = defineEmits(["updateCheckBox"]);
 const props = defineProps<{
   subtask: SubTask;
 }>();
 const handleCheckBox = () => {
   emit("updateCheckBox", props.subtask.name, props.subtask.isChecked);
-  // isChecked.value = false;
 };
 </script>
 

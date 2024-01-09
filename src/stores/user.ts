@@ -1,16 +1,27 @@
-import { ref } from 'vue'
-import { defineStore, acceptHMRUpdate } from 'pinia'
+import { ref } from "vue";
+import { defineStore, acceptHMRUpdate } from "pinia";
 
-export const useUser = defineStore('user', () => {
-  const user = ref<Object | null>(null)
+const USER_STORAGE_KEY = "userState";
+
+export const useUser = defineStore("user", () => {
+  const user = ref<Object | null>(null);
   const createNewBoard = ref<boolean>(false);
-
-
-  const setUser = (userDetail: Object | null) => {
-    user.value = userDetail
+  const userIsLoggedIn = ref(false)
+  // Try to retrieve user state from localStorage on store initialization
+  const storedUserState = localStorage.getItem(USER_STORAGE_KEY);
+  if (storedUserState) {
+    user.value = JSON.parse(storedUserState);
+    userIsLoggedIn.value = true
   }
-  return { user, setUser, createNewBoard }
-})
+  const setUser = (userDetail: Object | null) => {
+    user.value = userDetail;
+    userIsLoggedIn.value = true
+    // Save user state to localStorage whenever it changes
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userDetail));
+  };
+
+  return { user, setUser, createNewBoard, userIsLoggedIn };
+});
 
 // hmr
 if (import.meta.hot) {

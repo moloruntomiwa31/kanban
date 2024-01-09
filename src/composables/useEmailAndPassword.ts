@@ -23,7 +23,6 @@ export function useEmailAndPassword() {
         toast.addToast("You've signed up successfully", "success");
       }
     } catch (e: Event) {
-      console.log(e);
       toast.addToast(`${e.message}`, "error");
     }
   };
@@ -32,14 +31,11 @@ export function useEmailAndPassword() {
     try {
       const res = await signInWithEmailAndPassword(auth, email, password);
       if (res) {
-        userStore.setUser(res.user);
-        console.log(res.user);
-        
+        userStore.setUser(res.user);        
         router.push("/dashboard");
         toast.addToast("You've logged in successfully", "success");
       }
     } catch (e: Event) {
-      console.log(e);
       toast.addToast(`${e.message}`, "error");
     }
   };

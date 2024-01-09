@@ -13,7 +13,7 @@
     <InputComponent
       type="email"
       class="outline-[#a8a4ff] w-full lg:w-3/4 border-2 border-gray-500 p-2 rounded-lg block"
-      placeholder="johndoe@gmail.com"
+      placeholder="example@gmail.com"
       v-model="email"
     />
   </div>
@@ -22,7 +22,7 @@
     <InputComponent
       type="password"
       class="outline-[#a8a4ff] w-full lg:w-3/4 border-2 border-gray-500 p-2 rounded-lg block"
-      placeholder="password goes here..."
+      placeholder="password"
       v-model="password"
     />
   </div>

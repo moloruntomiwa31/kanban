@@ -9,20 +9,20 @@
     Sign up with Google
   </button>
   <div>
-    <label for="email">Email Address</label>
+    <label for="email" class="font-bold text-md">Email Address</label>
     <InputComponent
       type="email"
       class="outline-[#a8a4ff] w-full lg:w-3/4 border-2 border-[#828FA3] p-2 rounded-lg block"
-      placeholder="johndoe@gmail.com"
+      placeholder="example@gmail.com"
       v-model="email"
     />
   </div>
   <div>
-    <label for="password">Password</label>
+    <label for="password" class="font-bold text-md">Password</label>
     <InputComponent
       type="password"
       class="outline-[#a8a4ff] w-full lg:w-3/4 border-2 border-[#828FA3] p-2 rounded-lg block"
-      placeholder="password goes here..."
+      placeholder="password..."
       v-model="password"
     />
   </div>

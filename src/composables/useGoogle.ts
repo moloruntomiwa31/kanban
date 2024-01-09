@@ -20,6 +20,7 @@ export function useGoogle() {
     } else {
       // User is signed out.
       userStore.setUser(null);
+      userStore.userIsLoggedIn = false
     }
   });
 

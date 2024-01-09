@@ -52,7 +52,7 @@
     <template #header>
       <label for="taskName">Task Name</label>
       <InputComponent
-        :initialValue="taskTitle"
+        :initialValue="newTaskTitle"
         placeholder="e.g Take Coffee Break"
         class="block mt-3 outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
         v-model="newTaskTitle"
@@ -93,9 +93,9 @@
 
       <button
         class="bg-[#635fc7] text-white p-2 rounded-2xl"
-        @click="board.createTask(newTaskTitle, newTaskDescription, newStatus)"
+        @click="updateTask(newTaskTitle, newTaskDescription, newStatus)"
       >
-        Create Task
+        Update Task
       </button>
     </template>
   </Modal>
@@ -132,23 +132,27 @@ import { v4 as uuidv4 } from "uuid";
 import { ref, computed } from "vue";
 import Modal from "../dashboard/Modal.vue";
 import type Column from "../../types/Column.ts";
+import type Board from "../../types/Board.ts";
 import type Task from "../../types/Task.ts";
 import SubTaskModal from "../task/SubTaskModal.vue";
 import NewColumn from "../dashboard/NewColumn.vue";
 import EditorTab from "./EditorTab.vue";
 import { useCreateBoard } from "@/stores/board";
 import { useToast } from "@/stores/toast";
+import { useRoute } from "vue-router";
 import InputComponent from "../dashboard/InputComponent.vue";
 import TextAreaComponent from "../dashboard/TextAreaComponent.vue";
 const board = useCreateBoard();
 const toast = useToast();
+const route = useRoute();
 
 const subTaskModal = ref<boolean>(false);
-const currentColumnTask = ref<Task[]>([]);
+const currentColumnTask = ref<Task | null>(null);
 const checkedSubTasks = ref([]);
 const showTaskDetails = ref<boolean>(false);
 const editTask = ref<boolean>(false);
 const deleteTask = ref<boolean>(false);
+const subtaskNames = ref<string[]>([]);
 
 const props = defineProps<{
   currentBoardColumns: Column[];
@@ -157,6 +161,7 @@ const props = defineProps<{
   taskTitle: string;
   taskDescription: string;
 }>();
+
 const newStatus = ref(props.boardColumnStatus);
 const newTaskDescription = ref(props.taskDescription);
 const newTaskTitle = ref(props.taskTitle);
@@ -169,6 +174,7 @@ const handleEditColumn = () => {
 const showTaskDetail = (task: Task) => {
   subTaskModal.value = true;
   currentColumnTask.value = task;
+  console.log(currentColumnTask.value);
 };
 
 const handleInputUpdate = (updatedValue: string, isChecked: boolean) => {
@@ -195,22 +201,60 @@ const updatedOption = computed<Column[]>(() => {
 });
 
 const addInputToEditSubtask = () => {
-  if (props.columnTask) {
-    currentColumnTask.subtasks.push({
+  if (currentColumnTask.value) {
+    currentColumnTask.value.subtasks.push({
       id: uuidv4(),
       name: "",
       isChecked: false,
     });
-    currentColumnTask.numOfSubtasks++;
+    currentColumnTask.value.numOfSubtasks++;
   }
+  console.log(currentColumnTask.value);
+  
 };
 
 const removeSubtask = (index: number) => {
-  currentColumnTask.subtasks.splice(index, 1);
+  if (currentColumnTask.value) {
+    currentColumnTask.value.subtasks.splice(index, 1);
+  }
 };
 const updateSubtaskValue = (index: number, value: string) => {
-  currentColumnTask.subtasks[index].name = value;
+  if (currentColumnTask.value) {
+    currentColumnTask.value.subtasks[index].name = value;
+    subtaskNames.value[index] = value; 
+  }
 };
+
+const updateTask = (title: string, description: string, status: string) => {
+  let matchingBoard: Board | undefined = board.newBoards.find((b) => b.id == route.params.id);
+  if (matchingBoard) {
+    let existingColumn: Column | undefined = matchingBoard.columns.find((c) => c.name == props.boardColumnStatus);
+    if (existingColumn) {
+      let existingTask: Task | undefined = existingColumn.tasks.find((t) => t.name == currentColumnTask.value?.name);
+      if (existingTask) {
+        // Update the existing task properties
+        existingTask.name = title;
+        existingTask.description = description;
+        existingTask.status = status;
+
+        // Preserve existing subtasks and add new ones
+        existingTask.subtasks = [
+          ...existingTask.subtasks,
+          ...subtaskNames.value.map((name) => ({
+            id: uuidv4(),
+            name: name,
+            isChecked: false,
+          })),
+        ];
+
+        editTask.value = false;
+        console.log(props.boardColumnStatus, props.taskDescription, props.taskTitle);
+      }
+    }
+  }
+};
+
+
 
 const removeTask = (task: Task) => {
   for (const column of props.currentBoardColumns) {
