@@ -71,7 +71,11 @@
           class="outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
           v-model="taskTitle"
         />
-        <TextAreaComponent label="description" v-model="taskDescription" />
+        <TextAreaComponent
+          label="description"
+          v-model="taskDescription"
+          :placeholder="'e.g Learn to pause and take breaks...'"
+        />
         <label for="subTask">SubTasks</label>
         <NewColumn
           v-for="(i, index) in board.numOfSubtasks"
@@ -94,6 +98,7 @@
           <option
             :value="data.name"
             v-for="data in currentBoardColumns"
+            :key="data"
             class="capitalize"
           >
             {{ data.name }}
@@ -205,10 +210,11 @@ const currentBoardColumns = computed<Column[] | []>(() => {
   }
   return [];
 });
-const currentColumnTask = computed<Task[]>(() => {
+const currentColumnTask = computed<Task[] | []>(() => {
   if (matchingBoard.value) {
-    return matchingBoard.value.columns.tasks;
+    return matchingBoard.value.columns.flatMap((column) => column.tasks);
   }
+  return [];
 });
 
 // Updating and modifying board and columns

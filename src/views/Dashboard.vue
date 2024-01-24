@@ -39,7 +39,7 @@ const boardStore = useCreateBoard();
       </div>
 
       <!-- conditional rendering -->
-      <div class="empty-board" v-if="boardStore.newBoards.length < 1">
+      <div class="empty-board " v-if="boardStore.newBoards.length < 1">
         <div class="empty-text">
           <img
             src="../assets/clipboard.png"
@@ -60,7 +60,7 @@ const boardStore = useCreateBoard();
       >
         <div v-for="board in boardStore.newBoards" :key="board">
           <div
-            class="bg-white py-5 px-4 w-full md:w-[250px] text-left cursor-pointer z-20"
+            class="bg-white py-5 px-4 w-full md:w-[250px] text-left cursor-pointer z-20 rounded-lg shadow-sm shadow-[#2d2d34] hover:text-[#22233d] duration-150"
             @click="router.push(`/dashboard/board/${board.id}`)"
           >
             <h3 class="font-bold capitalize">{{ board.name }}</h3>

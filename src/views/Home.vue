@@ -26,11 +26,8 @@
       <!-- Home Details -->
       <div class="hidden lg:block w-2/4 relative h-[600px]">
         <div class="quotes absolute top-10">
-          <p class="">
-            <span class="text-2xl font-semibold"
-              >"When the going gets tough, the tough gets going"</span
-            >
-            <span class="text-md"> - Joseph Kennedy</span>
+          <p class="text-3xl font-extrabold">
+              Welcome to the simple way of managing your tasks.
           </p>
         </div>
         <div class="kanban-image absolute right-[-6rem] bottom-0">

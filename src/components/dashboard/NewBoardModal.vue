@@ -8,7 +8,7 @@
     </template>
     <template #body>
       <label for="board-name">Board Name</label>
-      <input
+      <InputComponent
         type="text"
         class="outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
         placeholder="e.g Web Design"
@@ -44,6 +44,7 @@ import { useUser } from "../../stores/user";
 import { storeToRefs } from "pinia";
 import { useCreateBoard } from "../../stores/board";
 import NewColumn from "./NewColumn.vue";
+import InputComponent from "./InputComponent.vue";
 
 const currentUser = useUser();
 const boardStore = useCreateBoard();
@@ -61,18 +62,6 @@ const removeColumn = (index: number) => {
 const updateColumnValue = (index: number, value: string) => {
   columnValues.value[index] = value;
 };
-// const columnsData = [
-//   {
-//     name: "Column 1",
-//     tasks: [
-//       {
-//         name: "Task 1",
-//         subtasks: [{ name: "Subtask 1" }, { name: "Subtask 2" }],
-//       },
-//       // Other tasks for Column 1
-//     ],
-//   },
-// ];
 </script>
 
 <style scoped></style>

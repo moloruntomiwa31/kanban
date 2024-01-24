@@ -5,17 +5,17 @@
       v-for="data in currentBoardColumns"
     >
       <h4 class="text-md text-slate-500 tracking-widest">
-        {{ data.name }}({{ data.tasks.length }})
+     {{ data.name }}({{ data.tasks.length }})
       </h4>
       <div class="empty-text mt-8">
         <div
           v-if="data.tasks"
           v-for="tasks in data.tasks"
           @click="showTaskDetail(tasks)"
-          class="shadow-md w-full rounded-lg p-3 bg-white h-[100px] font-bold m-8 hover:cursor-pointer task-div"
+          class="shadow-md w-full rounded-lg p-4 bg-white font-bold m-8 hover:cursor-pointer task-div"
         >
-          <div class="text-left items-center min-h-full space-y-3">
-            <h2 class="text-xl capitalize">{{ tasks.name }}</h2>
+          <div class="text-left items-center space-y-3">
+            <h2 class="text-lg capitalize">{{ tasks.name }}</h2>
             <p class="text-sm text-gray-500">
               {{ checkedSubTasks.length }} of
               {{ tasks.subtasks.length }} subtasks
@@ -54,16 +54,20 @@
       <InputComponent
         :initialValue="newTaskTitle"
         placeholder="e.g Take Coffee Break"
-        class="block mt-3 outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
+        class="block mt-3 outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg w-[90%]"
         v-model="newTaskTitle"
       />
     </template>
     <template #body>
-      <TextAreaComponent label="description" v-model="newTaskDescription" />
+      <TextAreaComponent
+        label="description"
+        v-model="newTaskDescription"
+        :placeholder="'e.g Learn to pause and take breaks...'"
+      />
       <label for="">SubTasks</label>
       <NewColumn
         v-for="(s, index) in currentColumnTask.subtasks"
-        :key="index"
+        :key="s"
         :initialValue="s.name"
         @removeInput="removeSubtask(index)"
         @updateInputValue="updateSubtaskValue(index, $event)"
@@ -106,7 +110,7 @@
     <template #body>
       <h3 class="text-gray-500">
         Are you sure you want to delete the
-        <span class="font-bold">"{{ currentColumnTask.name }}"</span>
+        <span class="font-bold text-black">"{{ currentColumnTask.name }}"</span>
         task and its subtasks? This action cannot be reversed.
       </h3>
       <div class="w-full flex items-center justify-between space-x-4">
@@ -131,9 +135,8 @@
 import { v4 as uuidv4 } from "uuid";
 import { ref, computed } from "vue";
 import Modal from "../dashboard/Modal.vue";
-import type Column from "../../types/Column.ts";
-import type Board from "../../types/Board.ts";
-import type Task from "../../types/Task.ts";
+import type { Column, Task } from "@/types";
+// import type Task from "../../types/Task.ts";
 import SubTaskModal from "../task/SubTaskModal.vue";
 import NewColumn from "../dashboard/NewColumn.vue";
 import EditorTab from "./EditorTab.vue";
@@ -148,7 +151,7 @@ const route = useRoute();
 
 const subTaskModal = ref<boolean>(false);
 const currentColumnTask = ref<Task | null>(null);
-const checkedSubTasks = ref([]);
+const checkedSubTasks = ref<string[]>([]);
 const showTaskDetails = ref<boolean>(false);
 const editTask = ref<boolean>(false);
 const deleteTask = ref<boolean>(false);
@@ -162,9 +165,9 @@ const props = defineProps<{
   taskDescription: string;
 }>();
 
-const newStatus = ref(props.boardColumnStatus);
-const newTaskDescription = ref(props.taskDescription);
-const newTaskTitle = ref(props.taskTitle);
+const newStatus = ref(props.boardColumnStatus || "");
+const newTaskDescription = ref(props.taskDescription || "");
+const newTaskTitle = ref(props.taskTitle || "");
 
 const emit = defineEmits(["editBoard"]);
 const handleEditColumn = () => {
@@ -178,7 +181,6 @@ const showTaskDetail = (task: Task) => {
 };
 
 const handleInputUpdate = (updatedValue: string, isChecked: boolean) => {
-  // let currentTask = currentColumnTask.value.find(c => c.id === updatedValue)
   if (isChecked) {
     if (!checkedSubTasks.value.includes(updatedValue)) {
       checkedSubTasks.value = [...checkedSubTasks.value, updatedValue];
@@ -210,7 +212,6 @@ const addInputToEditSubtask = () => {
     currentColumnTask.value.numOfSubtasks++;
   }
   console.log(currentColumnTask.value);
-  
 };
 
 const removeSubtask = (index: number) => {
@@ -221,40 +222,70 @@ const removeSubtask = (index: number) => {
 const updateSubtaskValue = (index: number, value: string) => {
   if (currentColumnTask.value) {
     currentColumnTask.value.subtasks[index].name = value;
-    subtaskNames.value[index] = value; 
+    subtaskNames.value[index] = value;
   }
 };
 
 const updateTask = (title: string, description: string, status: string) => {
-  let matchingBoard: Board | undefined = board.newBoards.find((b) => b.id == route.params.id);
+  const matchingBoard = board.newBoards.find((b) => b.id == route.params.id);
   if (matchingBoard) {
-    let existingColumn: Column | undefined = matchingBoard.columns.find((c) => c.name == props.boardColumnStatus);
+    const existingColumn = matchingBoard.columns.find(
+      (c) => c.name == props.boardColumnStatus
+    );
     if (existingColumn) {
-      let existingTask: Task | undefined = existingColumn.tasks.find((t) => t.name == currentColumnTask.value?.name);
-      if (existingTask) {
-        // Update the existing task properties
-        existingTask.name = title;
-        existingTask.description = description;
-        existingTask.status = status;
+      const existingTaskIndex = existingColumn.tasks.findIndex(
+        (t) => t.name == currentColumnTask.value?.name
+      );
+      if (existingTaskIndex !== -1) {
+        const existingTask = existingColumn.tasks[existingTaskIndex];
 
-        // Preserve existing subtasks and add new ones
-        existingTask.subtasks = [
-          ...existingTask.subtasks,
-          ...subtaskNames.value.map((name) => ({
-            id: uuidv4(),
-            name: name,
-            isChecked: false,
-          })),
-        ];
+        if (status !== props.boardColumnStatus) {
+          // Status (column) is changing
+          const newColumn = matchingBoard.columns.find((c) => c.name == status);
+          if (newColumn) {
+            // Remove task from the current column
+            existingColumn.tasks.splice(existingTaskIndex, 1);
+
+            // Add task to the new column
+            newColumn.tasks.push({
+              id: uuidv4(),
+              numOfSubtasks: 0,
+              name: title,
+              description: description,
+              status: status,
+              subtasks: [
+                ...existingTask.subtasks,
+                ...subtaskNames.value.map((name) => ({
+                  id: uuidv4(),
+                  name: name,
+                  isChecked: false,
+                })),
+              ],
+            });
+          }
+        } else {
+          // Status (column) remains the same, update the task in place
+          existingTask.name = title;
+          existingTask.description = description;
+          existingTask.status = status;
+
+          // Add new subtasks to the existing ones
+          existingTask.subtasks = [
+            ...existingTask.subtasks,
+            ...subtaskNames.value.map((name) => ({
+              id: uuidv4(),
+              name: name,
+              isChecked: false,
+            })),
+          ];
+        }
 
         editTask.value = false;
-        console.log(props.boardColumnStatus, props.taskDescription, props.taskTitle);
+        console.log(`Task updated: ${title} in column ${status}`);
       }
     }
   }
 };
-
-
 
 const removeTask = (task: Task) => {
   for (const column of props.currentBoardColumns) {

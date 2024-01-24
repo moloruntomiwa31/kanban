@@ -4,13 +4,17 @@
       type="checkbox"
       :id="subtask.name"
       :value="subtask.name"
+      :checked="subtask.isChecked"
       class="h-5 w-5 focus:border-indigo-300 focus:ring-purple-500 mr-2 hover:cursor-pointer"
       v-model="subtask.isChecked"
       @change="handleCheckBox"
     />
-    <label :for="subtask.name" class="capitalize text-md font-bold">{{
-      subtask.name
-    }}</label>
+    <label
+      :for="subtask.name"
+      class="capitalize text-md font-bold"
+      :class="{ 'line-through-class': subtask.isChecked }"
+      >{{ subtask.name }}</label
+    >
   </div>
 </template>
 
@@ -28,7 +32,7 @@ const handleCheckBox = () => {
 </script>
 
 <style scoped>
-input[type="checkbox"]:checked + label {
+.line-through-class {
   text-decoration: line-through;
   color: #888585;
 }

@@ -20,6 +20,7 @@
         <RouterLink
           :to="`/dashboard/board/${board.id}`"
           active-class="active-board"
+          class="hover"
         >
           <i class="bx bx-grid-alt"></i>
           <span class="nav-item capitalize">{{ board.name }}</span>
@@ -80,8 +81,8 @@ const openSideBar = () => {
   width: 50px;
   background-color: #20212c;
   padding: 0.4rem 0.8rem;
-  transition: all 0.5s ease; 
-    z-index: 100;
+  transition: all 0.5s ease;
+  z-index: 100;
 
   #btn {
     position: absolute;
@@ -116,6 +117,7 @@ const openSideBar = () => {
       width: 90%;
       margin: 0.8rem auto;
       line-height: 50px;
+      border-radius: 3px;
 
       .active-board {
         color: red;
@@ -126,9 +128,8 @@ const openSideBar = () => {
         align-items: center;
         color: #fff;
         border-radius: 3px;
-
         // &:hover {
-        //   color: #e8e4e4;
+        //   color: purple;
         // }
 
         i {

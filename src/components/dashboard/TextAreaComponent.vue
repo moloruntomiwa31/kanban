@@ -5,6 +5,7 @@
     rows="5"
     class="outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
     :value="modelValue"
+    :placeholder="placeholder"
     @input="handleInput($event.target.value)"
   ></textarea>
 </template>
@@ -14,6 +15,7 @@
 defineProps<{
     label: string,
     modelValue: string
+    placeholder: string
 }>()
 
 const emit = defineEmits(["update:modelValue"])
