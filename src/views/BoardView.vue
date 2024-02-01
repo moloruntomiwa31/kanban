@@ -92,7 +92,7 @@
 
         <label for="status">Current Status</label>
         <select
-          v-model="status"
+          v-model="taskStatus"
           class="outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
         >
           <option
@@ -108,7 +108,7 @@
         <button
           class="bg-[#635fc7] text-white p-2 rounded-2xl"
           @click="
-            createTask(taskTitle, taskDescription, status, board.subTasksData)
+            createTask(taskTitle, taskDescription, taskStatus, board.subTasksData)
           "
         >
           Create Task
@@ -143,7 +143,7 @@
         <ColumnView
           :currentBoardColumns="currentBoardColumns"
           :columnTask="currentColumnTask"
-          :boardColumnStatus="status"
+          :boardColumnStatus="taskStatus"
           :taskTitle="taskTitle"
           :taskDescription="taskDescription"
           @editBoard="editBoard = true"
@@ -185,7 +185,7 @@ const deleteBoard = ref<boolean>(false);
 const matchingBoard = ref<Board | null>(null);
 
 // task reactive values
-const status = ref("");
+const taskStatus = ref("");
 const taskTitle = ref("");
 const taskDescription = ref("");
 
@@ -288,6 +288,9 @@ const createTask = (
   );
   board.createTask(title, description, status, data, exactColumn!);
   taskModal.value = false;
+  taskStatus.value = ""
+  taskDescription.value = ""
+  taskTitle.value =  ""
 };
 </script>
 

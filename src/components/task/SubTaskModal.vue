@@ -31,17 +31,17 @@
         :subtask="subtask"
         v-for="subtask in currentColumnTask.subtasks"
         :key="subtask"
-        v-model="subtask.isChecked"
         @updateCheckBox="handleInputUpdate(subtask.name, $event)"
       />
       <p class="block">
         <label>Current Status</label>
         <select
+          @change="handleSelectInput($event.target!.value)"
           v-model="newStatus"
           class="block w-full outline-[#a8a4ff] border-1 border-[#828FA3] p-3 rounded-lg hover:cursor-pointer"
         >
-          <option :value="currentColumnTask.status" class="capitalize" selected>
-            {{ currentColumnTask.status }}
+          <option :value="boardColumnStatus" class="capitalize" selected>
+            {{ boardColumnStatus }}
           </option>
           <option v-for="data in updatedOption">{{ data.name }}</option>
         </select>
@@ -63,8 +63,13 @@ const props = defineProps([
   "checkedSubTasks",
   "boardColumnStatus",
 ]);
-const emit = defineEmits(["close", "handleTask", "handleInputUpdate"]);
-const newStatus = ref(props.currentColumnTask?.status || "");
+const emit = defineEmits([
+  "close",
+  "handleTask",
+  "handleInputUpdate",
+  "handleSelectInput",
+]);
+const newStatus = ref(props.boardColumnStatus);
 const updatedOption = computed<Column[]>(() => {
   return props.currentBoardColumns.filter(
     (column: Column) => column.name != props.boardColumnStatus
@@ -79,6 +84,9 @@ const handleTaskDetails = () => {
 };
 const handleInputUpdate = (name: string, value: boolean) => {
   emit("handleInputUpdate", name, value);
+};
+const handleSelectInput = (value: string) => {
+  emit("handleSelectInput", value);
 };
 </script>
 

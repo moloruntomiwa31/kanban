@@ -27,6 +27,10 @@ export const useCreateBoard = defineStore("useCreateBoard", () => {
         tasks: [] as Task[],
       })),
     };
+    if (boardName.length < 1 || boardColumn.length < 1) {
+      toast.addToast("Datas required!", "error");
+      return;
+    }
     newBoards.unshift(board);
     newBoardName.value = "";
     numOfColumns.value = 1;
@@ -48,11 +52,21 @@ export const useCreateBoard = defineStore("useCreateBoard", () => {
       description: description,
       status: status,
       numOfSubtasks: numOfSubtasks.value,
+      checkedSubTasks: [],
       subtasks: data.map((d) => ({
         id: uuidv4(),
         name: d,
         isChecked: false,
       })),
+    };
+    if (
+      title.length < 1 ||
+      description.length < 1 ||
+      status.length < 1 ||
+      data.length < 1
+    ) {
+      toast.addToast("Datas required!", "error");
+      return;
     }
     exactColumn?.tasks.push(task);
     numOfSubtasks.value = 1;
@@ -61,13 +75,13 @@ export const useCreateBoard = defineStore("useCreateBoard", () => {
   };
 
   // Modifying SubTask
-  const removeSubtask =(index: number) => {
+  const removeSubtask = (index: number) => {
     numOfSubtasks.value--;
     subTasksData.value.splice(index, 1);
-  }
+  };
   const updateSubtaskValue = (index: number, value: string) => {
     subTasksData.value[index] = value;
-  }
+  };
   return {
     removeSubtask,
     updateSubtaskValue,

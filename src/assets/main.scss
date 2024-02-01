@@ -24,3 +24,8 @@ button {
 body {
   overflow-x: hidden;
 }
+
+label:after {
+  content: " *";
+  color: red;
+}

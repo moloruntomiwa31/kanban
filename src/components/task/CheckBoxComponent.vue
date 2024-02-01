@@ -1,26 +1,21 @@
 <template>
   <div class="bg-slate-100 p-3 hover:bg-slate-200 hover:cursor-pointer">
-    <InputComponent
+    <input
       type="checkbox"
-      :id="subtask.name"
-      :value="subtask.name"
-      :checked="subtask.isChecked"
-      class="h-5 w-5 focus:border-indigo-300 focus:ring-purple-500 mr-2 hover:cursor-pointer"
       v-model="subtask.isChecked"
       @change="handleCheckBox"
+      class="mr-2"
     />
-    <label
-      :for="subtask.name"
+    <span
       class="capitalize text-md font-bold"
       :class="{ 'line-through-class': subtask.isChecked }"
-      >{{ subtask.name }}</label
+      >{{ subtask.name }}</span
     >
   </div>
 </template>
 
 <script setup lang="ts">
 import type SubTask from "../../types/SubTask";
-import InputComponent from "../dashboard/InputComponent.vue";
 
 const emit = defineEmits(["updateCheckBox"]);
 const props = defineProps<{

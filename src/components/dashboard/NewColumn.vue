@@ -2,7 +2,7 @@
   <div class="flex justify-between">
     <InputComponent
       :initialValue="columnValue"
-      class="outline-[#a8a4ff] w-[90%] border-1 border-[#828FA3] p-2 rounded-lg"
+      class="outline-[#a8a4ff] w-[90%] border-1 border-[#828FA3] p-2 rounded-lg grid"
       @updateInput="updateInputValue"
       placeholder="e.g Todo"
     />
