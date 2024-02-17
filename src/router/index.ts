@@ -32,7 +32,7 @@ const router = createRouter({
     {
       path: "/dashboard",
       name: "dashboard",
-      component: () => import("../views/DashBoard.vue"),
+      component: () => import("../views/Dashboard.vue"),
       beforeEnter: authGuard,
       meta: { layout: AppLayout },
     },
