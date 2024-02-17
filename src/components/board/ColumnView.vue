@@ -84,7 +84,7 @@
       </button>
       <label for="status">Current Status</label>
       <select
-        @change="handleSelectInput($event.target!.value)"
+        @change="handleSelectInput($event)"
         v-model="newStatus"
         class="outline-[#a8a4ff] border-1 border-[#828FA3] p-2 rounded-lg"
       >
@@ -361,9 +361,10 @@ const removeTask = (task: Task) => {
   }
 };
 
-const handleSelectInput = (value: string) => {
-  newStatus.value = value;
-  currentColumnTask.value!.status = value;
+const handleSelectInput = (event: Event) => {
+  const selectedValue = (event.target as HTMLSelectElement).value;
+  newStatus.value = selectedValue;
+  currentColumnTask.value!.status = selectedValue;
   updateTask(newTaskTitle.value, newTaskDescription.value, newStatus.value);
 };
 

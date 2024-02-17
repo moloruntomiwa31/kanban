@@ -9,14 +9,14 @@
     :value="modelValue"
     :placeholder="placeholder"
     v-bind="$attrs"
-    @input="handleInput($event.target?.value)"
-    :class="{'border-red-800 border-2' : error}"
+    @input="handleInput($event)"
+    :class="{ 'border-red-800 border-2': error }"
   ></textarea>
   <span v-if="error" class="text-red-500 block">Cannot be empty!</span>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from "vue";
 defineProps<{
   label: string;
   modelValue: string;
@@ -24,14 +24,13 @@ defineProps<{
 }>();
 
 const emit = defineEmits(["update:modelValue"]);
-const error = ref(false)
+const error = ref(false);
 
-
-const handleInput = (value: string) => {
-  error.value = value.trim() === ""; // Check if the input is empty
-  emit("update:modelValue", value);
+const handleInput = (event: Event) => {
+  const selectedValue = (event.target as HTMLTextAreaElement).value;
+  error.value = selectedValue.trim() === ""; // Check if the input is empty
+  emit("update:modelValue", selectedValue);
 };
 </script>
 
 <style lang="scss" scoped></style>
-  

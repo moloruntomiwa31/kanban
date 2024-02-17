@@ -36,7 +36,7 @@
       <p class="block">
         <label>Current Status</label>
         <select
-          @change="handleSelectInput($event.target!.value)"
+          @change="handleSelectInput($event)"
           class="block w-full outline-[#a8a4ff] border-1 border-[#828FA3] p-3 rounded-lg hover:cursor-pointer"
         >
           <option :value="boardColumnStatus" class="capitalize" selected>
@@ -84,8 +84,9 @@ const handleTaskDetails = () => {
 const handleInputUpdate = (name: string, value: boolean) => {
   emit("handleInputUpdate", name, value);
 };
-const handleSelectInput = (value: string) => {
-  emit("handleSelectInput", value);
+const handleSelectInput = (event: Event) => {
+  const selectedValue = (event.target as HTMLSelectElement).value;
+  emit("handleSelectInput", selectedValue);
 };
 </script>
 

@@ -26,7 +26,7 @@ const boardStore = useCreateBoard();
     <div class="container">
       <div class="greetings">
         <h2 class="text-xl font-bold whitespace-nowrap" v-if="currentUser.user">
-          Hello {{ currentUser.user?.displayName || currentUser.user?.email || "Anonymous" }}👋🏽,
+          Hello {{ currentUser.user.displayName || currentUser.user.email || "Anonymous" }}👋🏽,
         </h2>
         <p class="text-sm">
           Welcome back to Kanban!

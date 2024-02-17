@@ -4,7 +4,7 @@ import AppLayout from "../layouts/AppLayout.vue";
 import { getAuth } from "firebase/auth";
 import { useUser } from "@/stores/user";
 
-const authGuard = async (to, from, next) => {
+const authGuard = async (to: any, from: any, next: any) => {
   const auth = getAuth();
   // Check if the user is authenticated 
   if (!useUser().userIsLoggedIn) {

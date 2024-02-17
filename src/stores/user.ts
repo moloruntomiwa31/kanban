@@ -1,10 +1,11 @@
 import { ref } from "vue";
 import { defineStore, acceptHMRUpdate } from "pinia";
+import type { User } from "firebase/auth";
 
 const USER_STORAGE_KEY = "userState";
 
 export const useUser = defineStore("user", () => {
-  const user = ref<Object | null>(null);
+  const user = ref<User | null>(null);
   const createNewBoard = ref<boolean>(false);
   const userIsLoggedIn = ref(false)
   // Try to retrieve user state from localStorage on store initialization
