@@ -58,7 +58,7 @@ const emit = defineEmits([
 const handleEditBoard = () => {
   emit("closeModal");
 };
-const updateTitle = (e) => {
+const updateTitle = (e: any) => {
   emit("updateTitle", e);
 };
 const removeColumn = (index: number) => {

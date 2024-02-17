@@ -5,9 +5,9 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth } from "../firebase/index";
-import router from "../router/index.ts";
-import { useUser } from "../stores/user.ts";
-import { useToast } from "../stores/toast.ts";
+import router from "../router/index";
+import { useUser } from "../stores/user";
+import { useToast } from "../stores/toast";
 
 export function useGoogle() {
   const userStore = useUser();

@@ -9,7 +9,7 @@
     :value="modelValue"
     :placeholder="placeholder"
     v-bind="$attrs"
-    @input="handleInput($event.target.value)"
+    @input="handleInput($event.target?.value)"
     :class="{'border-red-800 border-2' : error}"
   ></textarea>
   <span v-if="error" class="text-red-500 block">Cannot be empty!</span>

@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import InputComponent from "./dashboard/InputComponent.vue";
 import { ref } from "vue";
-import { useGoogle } from "../composables/useGoogle.ts";
+import { useGoogle } from "../composables/useGoogle";
 import { useEmailAndPassword } from "@/composables/useEmailAndPassword";
 
 const { signInWithGoogle } = useGoogle();

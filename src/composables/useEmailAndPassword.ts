@@ -3,9 +3,9 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { useUser } from "../stores/user.ts";
-import { useToast } from "../stores/toast.ts";
-import router from "../router/index.ts";
+import { useUser } from "../stores/user";
+import { useToast } from "../stores/toast";
+import router from "../router/index";
 
 export function useEmailAndPassword() {
   const userStore = useUser();
@@ -22,7 +22,7 @@ export function useEmailAndPassword() {
         router.push("/dashboard");
         toast.addToast("You've signed up successfully", "success");
       }
-    } catch (e: Event) {
+    } catch (e: any) {
       toast.addToast(`${e.message}`, "error");
     }
   };
@@ -35,7 +35,7 @@ export function useEmailAndPassword() {
         router.push("/dashboard");
         toast.addToast("You've logged in successfully", "success");
       }
-    } catch (e: Event) {
+    } catch (e: any) {
       toast.addToast(`${e.message}`, "error");
     }
   };
