@@ -85,8 +85,8 @@ const handleInputUpdate = (name: string, value: boolean) => {
   emit("handleInputUpdate", name, value);
 };
 const handleSelectInput = (event: Event) => {
-  const selectedValue = (event.target as HTMLSelectElement).value;
-  emit("handleSelectInput", selectedValue);
+  // const selectedValue = (event.target as HTMLSelectElement).value;
+  emit("handleSelectInput", event);
 };
 </script>
 
