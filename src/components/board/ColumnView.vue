@@ -6,7 +6,8 @@
       :key="column.name"
     >
       <h4 class="text-md text-slate-500 tracking-widest">
-        {{ column.name }}({{ statusLengths[column.name] || 0 }})
+        {{ column.name }}
+        <!-- ({{ statusLengths[column.name] || 0 }}) -->
       </h4>
       <div v-for="task in currentBoard.mainTasks" :key="task.id">
         <!-- Add a v-if check to ensure task is defined -->
@@ -40,7 +41,7 @@
     :currentBoardColumns="currentBoardColumns"
     :subTaskModal="subTaskModal"
     :checkedSubTasks="currentColumnTask?.checkedSubTasks"
-    :boardColumnStatus="newStatus"
+    :boardColumnStatus="currentColumnTask?.status"
     @handleTask="showTaskDetails = !showTaskDetails"
     @handleInputUpdate="handleInputUpdate"
     @handleSelectInput="handleSelectInput"
@@ -139,11 +140,11 @@
 
 <script setup lang="ts">
 import { v4 as uuidv4 } from "uuid";
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import Modal from "../dashboard/Modal.vue";
 import type Column from "@/types/Column";
 import type Board from "@/types/Board";
-import type Task from "../../types/Task.ts";
+import type Task from "../../types/Task";
 import SubTaskModal from "../task/SubTaskModal.vue";
 import NewColumn from "../dashboard/NewColumn.vue";
 import EditorTab from "./EditorTab.vue";
@@ -365,6 +366,13 @@ const handleSelectInput = (value: string) => {
   currentColumnTask.value!.status = value;
   updateTask(newTaskTitle.value, newTaskDescription.value, newStatus.value);
 };
+
+watch(
+  () => props.boardColumnStatus,
+  (newValue) => {
+    newStatus.value = newValue;
+  }
+);
 </script>
 
 <style scoped lang="scss">

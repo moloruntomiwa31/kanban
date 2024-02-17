@@ -37,7 +37,6 @@
         <label>Current Status</label>
         <select
           @change="handleSelectInput($event.target!.value)"
-          v-model="newStatus"
           class="block w-full outline-[#a8a4ff] border-1 border-[#828FA3] p-3 rounded-lg hover:cursor-pointer"
         >
           <option :value="boardColumnStatus" class="capitalize" selected>
