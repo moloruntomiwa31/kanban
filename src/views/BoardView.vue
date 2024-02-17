@@ -99,7 +99,6 @@
           <option
             :value="data.name"
             v-for="data in currentBoardColumns"
-            :key="data"
             class="capitalize"
           >
             {{ data.name }}

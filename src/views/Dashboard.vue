@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useGoogle } from "@/composables/useGoogle.ts";
+import { useGoogle } from "@/composables/useGoogle";
 import { useUser } from "../stores/user";
 import { useRouter } from "vue-router";
 import { useCreateBoard } from "../stores/board";
@@ -25,7 +25,7 @@ const boardStore = useCreateBoard();
     </div>
     <div class="container">
       <div class="greetings">
-        <h2 class="text-xl font-bold whitespace-nowrap">
+        <h2 class="text-xl font-bold whitespace-nowrap" v-if="currentUser.user">
           Hello {{ currentUser.user?.displayName || currentUser.user?.email || "Anonymous" }}👋🏽,
         </h2>
         <p class="text-sm">
@@ -58,7 +58,7 @@ const boardStore = useCreateBoard();
         v-else
         class="mx-[1.5rem] my-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
       >
-        <div v-for="board in boardStore.newBoards" :key="board">
+        <div v-for="board in boardStore.newBoards">
           <div
             class="bg-white py-5 px-4 w-full md:w-[250px] text-left cursor-pointer z-20 rounded-lg shadow-sm shadow-[#2d2d34] hover:text-[#22233d] duration-150"
             @click="router.push(`/dashboard/board/${board.id}`)"
