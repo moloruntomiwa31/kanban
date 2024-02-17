@@ -35,6 +35,7 @@
       @edit="editBoard = true"
       @delete="deleteBoard = true"
     />
+    <NewBoardModal />
     <!-- Edit Modal -->
     <EditBoardModal
       :editBoard="editBoard"
@@ -108,7 +109,12 @@
         <button
           class="bg-[#635fc7] text-white p-2 rounded-2xl"
           @click="
-            createTask(taskTitle, taskDescription, taskStatus, board.subTasksData)
+            createTask(
+              taskTitle,
+              taskDescription,
+              taskStatus,
+              board.subTasksData
+            )
           "
         >
           Create Task
@@ -139,8 +145,9 @@
       class="container bg-blue-50 overflow-x-hidden pt-4"
       v-if="board.newBoards"
     >
-      <div class="min-h-[100vh] flex-col text-center">
+      <div class="min-h-[100vh] flex-col text-center" v-if="matchingBoard">
         <ColumnView
+          :currentBoard="matchingBoard!"
           :currentBoardColumns="currentBoardColumns"
           :columnTask="currentColumnTask"
           :boardColumnStatus="taskStatus"
@@ -161,6 +168,7 @@ import { ref, watch, computed, onMounted, watchEffect } from "vue";
 import { useCreateBoard } from "@/stores/board";
 import Modal from "../components/dashboard/Modal.vue";
 import NewColumn from "@/components/dashboard/NewColumn.vue";
+import NewBoardModal from "../components/dashboard/NewBoardModal.vue";
 import InputComponent from "@/components/dashboard/InputComponent.vue";
 import type Column from "../types/Column";
 import type Board from "../types/Board";
@@ -283,14 +291,12 @@ const createTask = (
   status: string,
   data: string[]
 ) => {
-  const exactColumn = matchingBoard.value!.columns.find(
-    (b) => b.name == status
-  );
-  board.createTask(title, description, status, data, exactColumn!);
+  const exactBoard = matchingBoard.value;
+  board.createTask(title, description, status, data, exactBoard!);
   taskModal.value = false;
-  taskStatus.value = ""
-  taskDescription.value = ""
-  taskTitle.value =  ""
+  taskStatus.value = "";
+  taskDescription.value = "";
+  taskTitle.value = "";
 };
 </script>
 

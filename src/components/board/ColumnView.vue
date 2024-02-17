@@ -2,26 +2,29 @@
   <div class="flex gap-8 overflow-x-scroll min-w-full min-h-[100vh]">
     <div
       class="min-w-[280px] font-bold min-h-full capitalize"
-      v-for="data in currentBoardColumns"
+      v-for="column in currentBoardColumns"
+      :key="column.name"
     >
       <h4 class="text-md text-slate-500 tracking-widest">
-        {{ data.name }}({{ data.tasks.length }})
+        {{ column.name }}({{ statusLengths[column.name] || 0 }})
       </h4>
-      <div class="empty-text mt-8">
-        <div
-          v-if="data.tasks"
-          v-for="tasks in data.tasks"
-          @click="showTaskDetail(tasks)"
-          class="shadow-md w-full rounded-lg p-4 bg-white font-bold m-8 hover:cursor-pointer task-div"
-        >
-          <div class="text-left items-center space-y-3">
-            <h2 class="text-lg capitalize">{{ tasks.name }}</h2>
-            <p class="text-sm text-gray-500">
-              {{ tasks.checkedSubTasks.length || 0 }} of
-              {{ tasks.subtasks.length }} subtasks
-            </p>
+      <div v-for="task in currentBoard.mainTasks" :key="task.id">
+        <!-- Add a v-if check to ensure task is defined -->
+        <template v-if="task">
+          <div
+            v-if="task.status === column.name"
+            @click="showTaskDetail(task)"
+            class="bg-white shadow-md w-full rounded-lg p-4 font-bold m-8 hover:cursor-pointer task-div"
+          >
+            <div class="text-left items-center space-y-3">
+              <h2 class="text-lg capitalize">{{ task.name }}</h2>
+              <p class="text-sm text-gray-500">
+                {{ task.checkedSubTasks.length || 0 }} of
+                {{ task.subtasks.length }} subtasks
+              </p>
+            </div>
           </div>
-        </div>
+        </template>
       </div>
     </div>
     <div
@@ -37,7 +40,7 @@
     :currentBoardColumns="currentBoardColumns"
     :subTaskModal="subTaskModal"
     :checkedSubTasks="currentColumnTask?.checkedSubTasks"
-    :boardColumnStatus="boardColumnStatus || currentColumnTask?.status"
+    :boardColumnStatus="newStatus"
     @handleTask="showTaskDetails = !showTaskDetails"
     @handleInputUpdate="handleInputUpdate"
     @handleSelectInput="handleSelectInput"
@@ -139,6 +142,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ref, computed } from "vue";
 import Modal from "../dashboard/Modal.vue";
 import type Column from "@/types/Column";
+import type Board from "@/types/Board";
 import type Task from "../../types/Task.ts";
 import SubTaskModal from "../task/SubTaskModal.vue";
 import NewColumn from "../dashboard/NewColumn.vue";
@@ -165,6 +169,7 @@ const props = defineProps<{
   boardColumnStatus: string;
   taskTitle: string;
   taskDescription: string;
+  currentBoard: Board;
 }>();
 
 const newStatus = ref(props.boardColumnStatus);
@@ -182,8 +187,16 @@ const showTaskDetail = (task: Task) => {
   newStatus.value = task.status;
   newTaskDescription.value = task.description;
   newTaskTitle.value = task.name;
-  // console.log(currentColumnTask.value);
 };
+
+// statusLength
+const statusLengths = computed(() => {
+  const lengths: any = {};
+  props.currentBoardColumns.forEach((column) => {
+    lengths[column.name] = column.tasks.length;
+  });
+  return lengths;
+});
 
 const handleInputUpdate = (updatedValue: string, isChecked: boolean) => {
   if (isChecked && currentColumnTask.value) {
@@ -222,6 +235,14 @@ const addInputToEditSubtask = () => {
       isChecked: false,
     });
     currentColumnTask.value.numOfSubtasks++;
+
+    // Clear the subtaskNames array before updating it
+    subtaskNames.value = [];
+
+    // Update subtaskNames with the current subtask names
+    subtaskNames.value = currentColumnTask.value.subtasks.map(
+      (subtask) => subtask.name
+    );
   }
   console.log(currentColumnTask.value);
 };
@@ -240,70 +261,85 @@ const updateSubtaskValue = (index: number, value: string) => {
 
 const updateTask = (title: string, description: string, status: string) => {
   console.log("clicked update button");
+
+  // Find the board in the newBoards array
   const matchingBoard = board.newBoards.find((b) => b.id == route.params.id);
+
   if (matchingBoard) {
-    const existingColumn = matchingBoard.columns.find((c) => c.name == status);
-    if (existingColumn) {
-      const existingTaskIndex = existingColumn.tasks.findIndex(
+    // Find the current and new columns
+    const currentColumn = matchingBoard.columns.find(
+      (c) => c.name == newStatus.value
+    );
+    const newColumn = matchingBoard.columns.find((c) => c.name == status);
+
+    if (currentColumn && newColumn) {
+      // Find the existing task in the current column
+      const existingTaskIndex = currentColumn.tasks.findIndex(
         (t) => t.name == currentColumnTask.value?.name
       );
+
       if (existingTaskIndex !== -1) {
-        const existingTask = existingColumn.tasks[existingTaskIndex];
+        // Extract the existing task
+        const existingTask = currentColumn.tasks[existingTaskIndex];
 
         // Check if the status (column) is changing
-        if (existingColumn.name !==  status) {
-          // Remove task from the current column
-          existingColumn.tasks.splice(existingTaskIndex, 1);
+        if (currentColumn.name !== newColumn.name) {
+          // Remove the task from the current column
+          currentColumn.tasks.splice(existingTaskIndex, 1);
 
-          // Find or create the new column
-          let newColumn = matchingBoard.columns.find((c) => c.name == status);
-          if (!newColumn) {
-            newColumn = {
-              name: status,
-              tasks: [],
-            };
-            matchingBoard.columns.push(newColumn);
-          }
+          // Filter out existing subtasks in the new subtaskNames array
+          const newSubtasks = subtaskNames.value
+            .filter((name) => name.trim() !== "")
+            .map((name) => ({
+              id: uuidv4(),
+              name: name,
+              isChecked: false,
+            }))
+            .filter(
+              (newSubtask) =>
+                !existingTask.subtasks.some(
+                  (existingSubtask) => existingSubtask.name === newSubtask.name
+                )
+            );
 
-          // Add task to the new column
+          // Add the task to the new column with existing and new subtasks
           newColumn.tasks.push({
-            id: existingTask.id, // Keep the same ID
-            numOfSubtasks: existingTask.numOfSubtasks,
+            ...existingTask,
             name: title,
             description: description,
             status: status,
-            checkedSubTasks: [],
-            subtasks: [
-              ...existingTask.subtasks,
-              ...subtaskNames.value.map((name) => ({
-                id: uuidv4(),
-                name: name,
-                isChecked: false,
-              })),
-            ],
+            subtasks: [...existingTask.subtasks, ...newSubtasks],
           });
 
           editTask.value = false;
-          console.log(`Task moved to column: ${status}`);
-          return; // Exit the function to avoid updating the task again
+          console.log(`Task moved from ${currentColumn.name} to ${status}`);
+        } else {
+          // Status (column) remains the same, update the task in place
+          existingTask.name = title;
+          existingTask.description = description;
+          existingTask.status = status;
+
+          // Filter out existing subtasks in the new subtaskNames array
+          const newSubtasks = subtaskNames.value
+            .filter((name) => name.trim() !== "")
+            .map((name) => ({
+              id: uuidv4(),
+              name: name,
+              isChecked: false,
+            }))
+            .filter(
+              (newSubtask) =>
+                !existingTask.subtasks.some(
+                  (existingSubtask) => existingSubtask.name === newSubtask.name
+                )
+            );
+
+          // Add new subtasks to the existing ones
+          existingTask.subtasks = [...existingTask.subtasks, ...newSubtasks];
+
+          editTask.value = false;
+          console.log(`Task updated in ${currentColumn.name}`);
         }
-
-        // Status (column) remains the same, update the task in place
-        existingTask.name = title;
-        existingTask.description = description;
-        existingTask.status = status;
-
-        // Add new subtasks to the existing ones
-        existingTask.subtasks = [
-          ...existingTask.subtasks,
-          ...subtaskNames.value.map((name) => ({
-            id: uuidv4(),
-            name: name,
-            isChecked: false,
-          })),
-        ];
-        editTask.value = false;
-        console.log(`Task updated: ${title} in column ${status}`);
       }
     }
   }

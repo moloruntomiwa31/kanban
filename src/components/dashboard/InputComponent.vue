@@ -1,6 +1,6 @@
 <!-- InputComponent.vue -->
 <template>
-  <div class="grid">
+  <div class="grid border-none p-0 m-0">
     <input
       v-model="inputValue"
       @input="updateInput"

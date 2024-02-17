@@ -22,6 +22,7 @@ export const useCreateBoard = defineStore("useCreateBoard", () => {
       id: uuidv4(),
       name: boardName,
       numberOfColumns: numOfColumns.value,
+      mainTasks: [] as Task[],
       columns: boardColumn.map((columnName) => ({
         name: columnName,
         tasks: [] as Task[],
@@ -44,7 +45,7 @@ export const useCreateBoard = defineStore("useCreateBoard", () => {
     description: string,
     status: string,
     data: string[],
-    exactColumn: Column
+    exactBoard: Board
   ) => {
     const task: Task = {
       id: uuidv4(),
@@ -68,7 +69,11 @@ export const useCreateBoard = defineStore("useCreateBoard", () => {
       toast.addToast("Datas required!", "error");
       return;
     }
-    exactColumn?.tasks.push(task);
+    let newColumn = exactBoard.columns.find((c) => c.name == status);
+    if (newColumn) {
+      newColumn.tasks.push(task);
+      exactBoard.mainTasks.push(task)
+    }
     numOfSubtasks.value = 1;
     subTasksData.value = [];
     toast.addToast("Task successfully created", "success");
