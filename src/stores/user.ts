@@ -14,7 +14,7 @@ export const useUser = defineStore("user", () => {
     user.value = JSON.parse(storedUserState);
     userIsLoggedIn.value = true
   }
-  const setUser = (userDetail: Object | null) => {
+  const setUser = (userDetail: User | null) => {
     user.value = userDetail;
     userIsLoggedIn.value = true
     // Save user state to localStorage whenever it changes
