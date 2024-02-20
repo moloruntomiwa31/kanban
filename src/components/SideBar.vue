@@ -77,7 +77,7 @@ const openSideBar = () => {
   position: fixed;
   top: 0;
   left: 0;
-  min-height: 100vh;
+  height: 100vh;
   width: 50px;
   background-color: #20212c;
   padding: 0.4rem 0.8rem;
@@ -128,9 +128,6 @@ const openSideBar = () => {
         align-items: center;
         color: #fff;
         border-radius: 3px;
-        // &:hover {
-        //   color: purple;
-        // }
 
         i {
           min-width: 30px;

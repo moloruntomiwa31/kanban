@@ -313,31 +313,4 @@ label {
   font-weight: 700;
   color: #5a595c;
 }
-
-.slide-in {
-  animation: slide-in 0.5s linear;
-}
-@keyframes slide-in {
-  0% {
-    opacity: 0;
-    transform: translateY(100px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.slide-out {
-  animation: slide-out 0.5s linear;
-}
-@keyframes slide-out {
-  0% {
-    opacity: 1;
-    transform: translateY(0px);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(100);
-  }
-}
 </style>

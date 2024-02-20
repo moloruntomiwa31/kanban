@@ -2,7 +2,7 @@
 <template>
   <div class="grid border-none p-0 m-0">
     <input
-      v-model="inputValue"
+      v-model.trim="inputValue"
       @input="updateInput"
       :type="inputType"
       :placeholder="defalutPlaceholder"

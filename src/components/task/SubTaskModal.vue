@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import Modal from "../dashboard/Modal.vue";
 import CheckBoxComponent from "./CheckBoxComponent.vue";
 import type Column from "@/types/Column";
@@ -68,7 +68,6 @@ const emit = defineEmits([
   "handleInputUpdate",
   "handleSelectInput",
 ]);
-const newStatus = ref(props.boardColumnStatus);
 const updatedOption = computed<Column[]>(() => {
   return props.currentBoardColumns.filter(
     (column: Column) => column.name != props.boardColumnStatus

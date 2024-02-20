@@ -1,7 +1,7 @@
 <template>
   <Transition name="modal-fade">
     <Teleport to="body">
-      <section class="new-board-modal" @click="handleCloseModal">
+      <div class="new-board-modal" @click="handleCloseModal">
         <Transition name="slide-in">
           <div class="modal" @click.stop>
             <div class="header">
@@ -12,7 +12,7 @@
             </fieldset>
           </div>
         </Transition>
-      </section>
+      </div>
     </Teleport>
   </Transition>
 </template>
@@ -28,13 +28,15 @@ const handleCloseModal = () => {
 @import "../../assets/main.scss";
 .new-board-modal {
   @include centerMixin;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   background-color: rgba(0, 0, 0, 0.7);
   z-index: 1000;
   min-height: 100vh;
+  max-height: 100vh;
   min-width: 100%;
+  overflow: hidden;
 
   label {
     color: #828fa3;
@@ -64,7 +66,6 @@ const handleCloseModal = () => {
 
     @media screen and (min-width: 768px) {
       min-width: 40%;
-      // height: 300px;
     }
   }
 }

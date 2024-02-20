@@ -53,7 +53,6 @@ const { addBoard } = boardStore;
 
 const addNewColumn = () => {
   boardStore.numOfColumns++
-  // columnValues.value.push("");
 };
 const removeColumn = (index: number) => {
   boardStore.numOfColumns--

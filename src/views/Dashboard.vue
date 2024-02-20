@@ -16,8 +16,8 @@ const boardStore = useCreateBoard();
   <!-- New Board Modal -->
   <NewBoardModal/>
 
-  <section class="main-content">
-    <div class="header">
+  <section class="main-content overflow-y-auto min-h-screen">
+    <div class="header z-50">
       <h1 class="text-2xl font-bold">Overview</h1>
       <button @click="signOutFromGoogle" class="font-bold text-xl">
         <i class="bx bxs-log-out"></i>LogOut
@@ -25,8 +25,8 @@ const boardStore = useCreateBoard();
     </div>
     <div class="container">
       <div class="greetings">
-        <h2 class="text-xl font-bold whitespace-nowrap" v-if="currentUser.user">
-          Hello {{ currentUser.user.displayName || currentUser.user.email || "Anonymous" }}👋🏽,
+        <h2 class="text-xl font-bold" v-if="currentUser.user">
+          Hello, <br>{{ currentUser.user.displayName || currentUser.user.email || "Anonymous" }}👋🏽,
         </h2>
         <p class="text-sm">
           Welcome back to Kanban!
