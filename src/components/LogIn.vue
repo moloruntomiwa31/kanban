@@ -3,7 +3,7 @@
   <p>Enter your credentials to access your account.</p>
   <button
     @click="signInWithGoogle"
-    class="font-bold w-full lg:w-3/4 justify-center flex items-center border-2 border-gray-500 p-3 rounded-md"
+    class="font-bold w-full lg:w-3/4 justify-center flex items-center border-2 border-gray-500 p-3 rounded-md hover:bg-blue-950 duration-200 hover:text-white"
   >
     <img src="../assets/google.svg" alt="google-image" />
     Log in with Google

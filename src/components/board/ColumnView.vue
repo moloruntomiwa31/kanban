@@ -359,6 +359,8 @@ const removeTask = (task: Task) => {
       break;
     }
   }
+  const taskToRemove = props.currentBoard.mainTasks.findIndex((t) => t.name == task.name)
+  props.currentBoard.mainTasks.splice(taskToRemove, 1)
 };
 
 const handleSelectInput = (event: Event) => {

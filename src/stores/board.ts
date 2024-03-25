@@ -4,7 +4,7 @@ import { useUser } from "./user";
 import { v4 as uuidv4 } from "uuid";
 import type Board from "../types/Board";
 import type Task from "../types/Task";
-import type Column from "../types/Column";
+// import type Column from "../types/Column";
 import { useToast } from "./toast";
 
 export const useCreateBoard = defineStore("useCreateBoard", () => {

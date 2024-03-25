@@ -3,7 +3,7 @@
   <p>Enter your credentials to access your account.</p>
   <button
     @click="signInWithGoogle"
-    class="font-bold w-full lg:w-3/4 justify-center flex items-center border-2 border-gray-500 p-3 rounded-md"
+    class="font-bold w-full lg:w-3/4 justify-center flex items-center border-2 border-gray-500 p-3 rounded-md hover:bg-blue-950 duration-200 hover:text-white"
   >
     <img src="../assets/google.svg" alt="google-image" />
     Sign up with Google
@@ -26,8 +26,12 @@
       v-model="password"
     />
   </div>
-  <button @click="signUpWithEmailAndPassword(email, password)"
-  class="outline-[#a8a4ff] bg-slate-800 p-3 hover:bg-slate-600 duration-100 rounded shadow text-white">Sign Up</button>
+  <button
+    @click="signUpWithEmailAndPassword(email, password)"
+    class="outline-[#a8a4ff] bg-slate-800 p-3 hover:bg-slate-600 duration-100 rounded shadow text-white"
+  >
+    Sign Up
+  </button>
 </template>
 
 <script setup lang="ts">

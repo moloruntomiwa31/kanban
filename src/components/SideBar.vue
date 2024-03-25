@@ -25,14 +25,14 @@
           <i class="bx bx-grid-alt"></i>
           <span class="nav-item capitalize">{{ board.name }}</span>
         </RouterLink>
-        <span class="tooltip">{{ board.name }}</span>
+        <!-- <span class="tooltip">{{ board.name }}</span> -->
       </li>
       <li>
         <button @click="createBoard">
           <i class="bx bxs-message-alt-add"></i>
           <span class="nav-item">New Board</span>
         </button>
-        <span class="tooltip">New Board</span>
+        <!-- <span class="tooltip">New Board</span> -->
       </li>
 
       <li>
@@ -40,7 +40,7 @@
           <i class="bx bxs-log-out"></i>
           <span class="nav-item">Logout</span>
         </button>
-        <span class="tooltip">Logout</span>
+        <!-- <span class="tooltip">Logout</span> -->
       </li>
     </ul>
   </div>
@@ -125,7 +125,7 @@ const openSideBar = () => {
       a,
       button {
         display: flex;
-        align-items: center;
+        align-items: baseline;
         color: #fff;
         border-radius: 3px;
 
@@ -137,7 +137,7 @@ const openSideBar = () => {
         }
       }
 
-      .tooltip {
+      /*      .tooltip {
         position: absolute;
         left: 125px;
         top: 100%;
@@ -151,6 +151,7 @@ const openSideBar = () => {
         min-width: fit-content;
         white-space: nowrap;
       }
+*/
     }
   }
 }
